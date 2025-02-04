@@ -239,13 +239,15 @@
         
         // Swap function for the login and registration forms
         $('#btnSwapLogin').on('click',function(){
-            $('#frmLogin').slideUp('slow')
-            $('#frmRegister').slideDown('fast')
+            $('#frmLogin').slideUp('fast', function(){
+                $('#frmRegister').slideDown('fast')
+            })
         })
 
         $('#btnSwapRegister').on('click', function(){
-            $('#frmRegister').slideUp('slow')
-            $('#frmLogin').slideDown('fast')
+            $('#frmRegister').slideUp('fast', function(){
+                $('#frmLogin').slideDown('fast')
+            })
         })
     </script>
 </body>
