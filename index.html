@@ -5,15 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwollenHippo EMR Registration</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/pulse/bootstrap.min.css" integrity="sha384-L7+YG8QLqGvxQGffJ6utDKFwmGwtLcCjtwvonVZR/Ba2VzhpMwBz51GaXnUsuYbj" crossorigin="anonymous">
+</head>
 <body class="bg-dark">
     <div class="d-flex justify-content-center align-items-center vh-100">
-        <form class="card col-12 col-md-8 col-lg-6">
+        <form class="card col-12 col-md-8 col-lg-6" id="frmLogin">
+            <div class="card-body">
+                <h1 class="text-center mb-0 text-primary">SwollenHippoEMR</h1>
+                <h3 class="text-center mb-4">User Login</h3>
+                <input id="txtUsername" class="form-control" type="email" placeholder="johndoe@email.com" aria-label="email">
+                <input id="txtLoginPassword" class="form-control mt-2" type="password" placeholder="password" aria-label="password">
+                <hr />
+                <button class="btn btn-primary col-12 mt-2" type="button" id="btnLogin">Log In</button>
+                <button class="btn btn-link col-12 mt-0" type="button" id="btnSwapLogin">Need an account, register here</button>
+            </div>
+        </form>
+        <form class="card col-12 col-md-8 col-lg-6" id="frmRegister" style="display:none;">
             <div class="card-body">
                 <h1 class="text-center mb-0">SwollenHippo EMR</h1>
                 <h6 class="mt-3 mb-1">New User Registration</h6>
                 <div>
                     <input id="txtEmail" class="form-control mb-1" type="email" placeholder="johndoe@email.com" aria-label="email">
-                    <input id="txtPassword" class="form-control mb-1" type="password" placeholder="Password" aria-label="password">
+                    <input id="txtRegPassword" class="form-control mb-1" type="password" placeholder="Password" aria-label="password">
                 </div>
                 <div class="mt-4">
                     <input id="txtFirstName" class="form-control mb-1" type="text" placeholder="First Name" aria-label="first name">
@@ -26,7 +38,7 @@
                     <input id="txtStreetAddress2" class="form-control mb-1" type="text" placeholder="Street Address 2" aria-label="street address 2">
                     <input id="txtCity" class="form-control mb-1" type="text" placeholder="City" aria-label="city">
                     <select id="cboState" class="form-control mb-1" placeholder="State" aria-label="state">
-                        <option value="">State</option>
+                        <option value="">Select Your State</option>
                         <option value="AL">Alabama</option>
                         <option value="AK">Alaska</option>
                         <option value="AZ">Arizona</option>
@@ -84,10 +96,157 @@
                     <input id="txtPhone" class="form-control mb-2" type="tel" placeholder="Mobile Phone Number (ex. 123-456-7890)" aria-label="phone number">
                 </div>
                 <button class="btn btn-primary col-12 mt-2" type="button" id="btnRegister">Register</button>
+                <button class="btn btn-link col-12 mt-0" type="button" id="btnSwapRegister">Back to login</button>
             </div>
 
         </form>
     </div>
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+
+        // Validation for the Registration Form using vanilla JS
+        document.querySelector("#btnRegister").addEventListener("click", (e)=>{
+
+            let strRegMessage = ''
+            let blnError = false
+
+
+            //Email Validation
+            const regEmail = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+            let strEmail = document.querySelector("#txtEmail").value
+            strEmail = strEmail.toLowerCase()
+
+            if(!regEmail.test(strEmail)) {
+                blnError = true
+                strRegMessage += '<p  class="mb-0 mt-0">Please enter a valid email address</p>'
+            }
+
+            //Password Validation
+            const strRegPassword = $('#txtRegPassword').val()
+
+            if(strRegPassword.length < 1) {
+                blnError = true
+                strRegMessage += '<p>Password cannot be blank<p/>'
+            }
+
+            //Name Validation
+            let strFirstName = $('#txtFirstName').val().toLowerCase()
+            let strMiddleName = $('#txtMiddleName').val().toLowerCase()
+            let strLastName = $('#txtLastName').val().toLowerCase()
+
+            if(strFirstName < 1 || strMiddleName < 1 || strLastName < 1) {
+                blnError = true
+                strRegMessage += '<p class="mb-0 mt-0">You must input a first, middle, and last name<p/>'
+            }
+
+            //Street Address, city, and state validation
+            let strStreetAddress1 = $('#txtStreetAddress1').val().toLowerCase()
+            let strCity = $('#txtCity').val().toLowerCase()
+            let strState = $('#cboState').val()
+
+            if(strStreetAddress1 < 1) {
+                blnError = true
+                strRegMessage += '<p class="mb-0 mt-0">Street Address 1 cannot be blank<p/>'
+            }
+
+            if(strCity < 1) {
+                blnError = true
+                strRegMessage += '<p class="mb-0 mt-0">City cannot be blank<p/>'
+            }
+
+            if(strState == "") {
+                blnError = true
+                strRegMessage += '<p class="mb-0 mt-0">Please select a state<p/>'
+            }
+
+            //Phone Validation - went with US phone regex because it is easier to tell when something is wrong (for user)
+            //  as opposed to using any type of phone #
+            const regPhone = /(?:\d{1}\s)?\(?(\d{3})\)?-?\s?(\d{3})-?\s?(\d{4})/
+            let strPhone = $('#txtPhone').val()
+
+            if(!regPhone.test(strPhone)) {
+                blnError = true
+                strRegMessage += '<p class="mb-0 mt-0">Please enter a valid US phone number<p/>'
+            }
+            
+            //Only throw an error alert if there is one
+            if(blnError == true) {
+                Swal.fire({
+                    title: "Oh no, you have an error!",
+                    html: strRegMessage,
+                    icon: "error"
+                });
+
+            }
+
+            //If no error, successful Registration
+            if(blnError == false) {
+                Swal.fire({
+                    title: "Successfully Registered!",
+                    html: strRegMessage,
+                    icon: "success"
+                });
+            }
+        })
+
+        //Validation for login page
+        document.querySelector("#btnLogin").addEventListener("click", (e)=>{
+
+            let blnLoginError = false
+            let strLoginMessage = ''
+
+            //Email Validation
+            const regLoginEmail = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+            let strUsername = $("#txtUsername").val().toLowerCase()
+
+            if(!regLoginEmail.test(strUsername)){
+                blnLoginError = true
+                strLoginMessage += '<p  class="mb-0 mt-0">Username must be an email address</p>'
+            }
+
+         
+            //Password Validation
+            const strLoginPassword = $('#txtLoginPassword').val()
+            
+            if(strLoginPassword.length < 1){
+                blnLoginError = true
+                strLoginMessage += '<p class="mb-0 mt-0">Password Cannot Be Blank</p>'
+            }
+
+
+            //Only throw an error alert if there is one
+            if(blnLoginError == true) {
+                Swal.fire({
+                    title: "Oh no, you have an error!",
+                    html: strLoginMessage,
+                    icon: "error"
+                });
+
+            }
+
+            //If no error, successful login
+            if(blnLoginError == false) {
+                Swal.fire({
+                    title: "Login Successful!",
+                    html: strLoginMessage,
+                    icon: "success"
+                });
+            }
+        })
+        
+        // Swap function for the login and registration forms
+        $('#btnSwapLogin').on('click',function(){
+            $('#frmLogin').slideUp('slow')
+            $('#frmRegister').slideDown('fast')
+        })
+
+        $('#btnSwapRegister').on('click', function(){
+            $('#frmRegister').slideUp('slow')
+            $('#frmLogin').slideDown('fast')
+        })
+    </script>
 </body>
 </html>
